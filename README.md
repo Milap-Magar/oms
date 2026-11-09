@@ -59,7 +59,25 @@ The frontend calls `/api/*` on its own origin. In dev, `server.ts` proxies these
 Every later request sends `Authorization: Bearer <token>` automatically (`src/lib/api.ts`).
 Use `api<T>("/api/orders")` for new endpoints.
 
-## Deploying
+## Deploying to Cloudflare
+
+`wrangler.jsonc` serves `dist/` from Cloudflare's CDN, and `worker/index.ts` forwards `/api/*`
+to your backend, so it stays same-origin (no CORS) like in development.
+
+In Cloudflare → Workers & Pages → Create → Import a repository:
+
+| Setting         | Value                 |
+| --------------- | --------------------- |
+| Build command   | `bun run build`       |
+| Deploy command  | `npx wrangler deploy` |
+| Root directory  | `/`                   |
+
+Then set the variable **`API_URL`** (Settings → Variables and secrets) to your public Spring Boot URL,
+e.g. `https://api.yourdomain.com`. Until it's set, login/register show "The server isn't connected yet."
+
+Test locally: `bun run build && bunx wrangler dev --var API_URL:http://localhost:8080`
+
+## Deploying elsewhere
 
 - **Same domain (recommended):** serve `dist/` and route `/api/*` to Spring Boot (e.g. Nginx, Caddy),
   or run `bun run start` next to the backend. The host must fall back to `index.html` for unknown paths (SPA).

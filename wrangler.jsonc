@@ -1,0 +1,21 @@
+{
+  // Cloudflare Workers config: serves the static build from dist/ and
+  // forwards /api/* to the Spring Boot backend (see worker/index.ts).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "oms",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Unknown paths (/login, /register, /dashboard) serve index.html.
+    "not_found_handling": "single-page-application",
+    // Only /api/* hits the Worker; everything else is served straight from the CDN.
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    // Public URL of your Spring Boot backend. Override in the Cloudflare dashboard
+    // (Settings → Variables) once the backend is hosted.
+    "API_URL": ""
+  }
+}
